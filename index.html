@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>عجلة دوارة احترافية</title>
+  <style>
+    /* تصميم الصفحة */
+    body {
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* العنوان */
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    /* حاوية العجلة */
+    .wheel-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+    }
+
+    /* تصميم العجلة */
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 5px solid #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform: rotate(0deg);
+      transition: transform 4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      background: conic-gradient(#ff8a00 0deg, #e52e71 90deg, #9c27b0 180deg, #03a9f4 270deg, #ffeb3b 360deg);
+    }
+
+    /* الخيارات داخل العجلة */
+    .option {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      color: #000;
+      transform-origin: 100% 100%;
+    }
+
+    /* حقل إدخال الأسماء */
+    .input-container {
+      margin: 20px 0;
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      background: #ff5722;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: background 0.3s ease-in-out;
+    }
+
+    button:hover {
+      background: #e64a19;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    /* صندوق عرض اسم الفائز */
+    .winner-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffeb3b;
+      color: #000;
+      padding: 20px 40px;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <!-- زر لف العجلة -->
+  <button id="spinButton">لف العجلة</button>
+
+  <!-- العنوان الرئيسي -->
+  <h1>عجلة دوارة مع إدخال أسماء</h1>
+
+  <!-- حقل إدخال الأسماء -->
+  <div class="input-container">
+    <input type="text" id="nameInput" placeholder="أضف اسمًا">
+    <button id="addNameButton">إضافة</button>
+  </div>
+
+  <!-- العجلة -->
+  <div class="wheel-container">
+    <div class="wheel" id="wheel"></div>
+  </div>
+
+  <!-- صندوق عرض اسم الفائز -->
+  <div class="winner-box" id="winnerBox"></div>
+
+  <script>
+    const spinButton = document.getElementById("spinButton");
+    const addNameButton = document.getElementById("addNameButton");
+    const nameInput = document.getElementById("nameInput");
+    const wheel = document.getElementById("wheel");
+    const winnerBox = document.getElementById("winnerBox");
+    let options = []; // قائمة الأسماء
+
+    // إنشاء الخيارات داخل العجلة
+    function createWheelOptions() {
+      wheel.innerHTML = ""; // تنظيف العجلة
+      options.forEach((option, index) => {
+        const optionElement = document.createElement("div");
+        optionElement.className = "option";
+        optionElement.style.transform = `rotate(${index * (360 / options.length)}deg)`;
+        optionElement.textContent = option;
+        wheel.appendChild(optionElement);
+      });
+    }
+
+    // إضافة اسم جديد للعجلة
+    addNameButton.addEventListener("click", () => {
+      const name = nameInput.value.trim();
+      if (name) {
+        options.push(name);
+        createWheelOptions();
+        nameInput.value = ""; // تفريغ الحقل بعد الإضافة
+      } else {
+        alert("يرجى إدخال اسم قبل الإضافة!");
+      }
+    });
+
+    // حدث دوران العجلة
+    spinButton.addEventListener("click", () => {
+      if (options.length === 0) {
+        alert("يرجى إضافة أسماء أولاً!");
+        return;
+      }
+
+      const randomDegree = Math.floor(Math.random() * 3600) + 360; // زاوية عشوائية مع دورات متعددة
+      wheel.style.transform = `rotate(${randomDegree}deg)`;
+
+      setTimeout(() => {
+        const selectedIndex = Math.floor((360 - (randomDegree % 360)) / (360 / options.length)); // تحديد الخيار الفائز
+        const winnerName = options[selectedIndex];
+
+        // عرض اسم الفائز بشكل أنيق
+        winnerBox.textContent = `🎉 الفائز: ${winnerName} 🎉`;
+        winnerBox.style.display = "block";
+
+        // إخفاء النافذة تلقائيًا بعد 5 ثوانٍ
+        setTimeout(() => {
+          winnerBox.style.display = "none";
+        }, 5000);
+      }, 4000);
+    });
+  </script>
+</body>
+</html>
